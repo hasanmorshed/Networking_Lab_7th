@@ -1,0 +1,267 @@
+
+HQ
+============
+en
+conf t
+
+int loopback 1
+ip address 10.10.10.1 255.255.255.252
+no shutdown
+
+int loopback 1
+ip address 10.10.10.1 255.255.255.252
+no shutdown
+
+
+
+branch-1
+=================
+en
+conf t
+hostname Branch1
+router ospf 1
+network 172.20.32.0 0.0.15.255 area 0
+network 172.20.56.0 0.0.0.3 area 0
+network 172.20.56.8 0.0.0.3 area 0
+passive-interface fa0/0
+router-id 2.2.2.2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ALL COMMAND
+===========================================
+
+Router> (This is User EXEC Mode.)
+Router> en
+Router# (This is Privileged EXEC Mode.)
+Router# config terminal
+Router(config)# (This is Configuration Mode.)
+Router(config)# int fa0/0
+Router(config-if)#	(This is Interface level within configuration mode)
+
+
+change hostname
+============================
+Router(config)# hostname HQ
+HQ(config)#
+
+
+assing IP address to interface fa0/0 and port status on
+=========================================================
+HQ(config)#i nt fa0/0
+HQ(config-if)# ip address 192.168.1.129 255.255.255.192
+HQ(config-if)# no shutdown
+HQ(config-if)# exit
+HQ(config)#
+
+
+assing ip address to serial0/0/1 , port status on , set clock rate to 64000
+=============================================================================
+HQ(config)# int s0/0/1
+HQ(config-if)# ip address 192.168.1.229 255.255.255.252
+HQ(config-if)# clock rate 64000
+HQ(config-if)# no shutdown 
+HQ(config-if)# exit
+HQ(config)#
+
+
+
+set line console password to "cisco"
+============================================
+HQ(config)# line console 0
+HQ(config-line)# password cisco
+HQ(config-line)# login
+HQ(config-line)# exit
+HQ(config)#
+
+
+
+set vty password to "cisco"
+================================
+HQ(config)# line vty 0
+HQ(config-line)# password cisco
+HQ(config-line)# login
+HQ(config-line)# exit
+HQ(config)#
+
+
+set privileged EXEC password to "cisco"
+============================================
+HQ(config)# enable secret class
+
+
+encrypt the clear text passwords.
+=========================================
+HQ(config)# service password-encryption
+
+
+Require that a minimum of 10 characters be used for all passwords.
+=================================================================
+HQ(config)# security passwords min-length 10
+
+
+Create a banner that warns anyone accessing the device that "unauthorized access is prohibited".
+=================================================================================================
+HQ(config)# banner motd #Unauthorized access prohibited!#
+
+
+
+Disable DNS lookup (prevent the router from attempting to translate incorrectly entered commands as though they were hostnames.)
+=========================================================================
+HQ(config)# no ip domain-lookup
+
+
+Set the clock on the router;
+==========================================
+HQ# clock set 17:00:00 03 Oct 2023
+
+
+Set the clock timezone on the router;
+=========================================
+HQ# clock timezone BDT 6
+
+
+set line console idle EXEC sessions to 3 minutes and 30 seconds , and 4 minutes for vty
+=========================================================================================
+HQ(config)#line con 0
+HQ(config-line)# exec-timeout 3 30
+HQ(config-line)# exit
+HQ(config)#line vty 0 4
+HQ(config-line)#exec-timeout 4 0
+HQ(config-line)# exit
+HQ(config)#
+
+
+
+
+set ip route for network 192.168.1.0/24 , mask 255.255.255.0 , hop s0/0/0
+===============================================================================
+HQ(config)# ip route 192.168.1.0 255.255.255.0 s0/0/0
+
+
+
+Save the running configuration to the startup configuration file.
+===================================================================
+HQ# copy running-config startup-config
+Destination filename [startup-config]?  (Press enter)
+Building configuration...
+[OK]
+HQ#
+
+
+
+Display the routing table on the router.
+===========================================
+HQ# show ip route
+
+
+
+Display a summary list of the interfaces on the router
+==========================================================
+HQ# show ip interface brief
+
+
+
+displays statistics for the network interfaces
+================================================
+HQ# show interfaces
+
+
+erase the startup configuration file from NVRAM.
+====================================================
+HQ# erase startup-config
+
+
+Reload switch to remove old configuration information.
+=======================================================
+HQ# reload
+
+
+
+HQ router needs to send the default route information
+=======================================================
+HQ(config)# router rip
+HQ(config-router)# default-information originate 
+
+
+
+HQ router need to disable RIP updates on FastEthernet0/0 interface
+====================================================================
+HQ(config)# router rip
+HQ(config-router)# passive-interface FastEthernet0/0
+
+
+
+
+Configure BGP protocol on the router
+=============================================
+Router(config)# router bgp 100  # BGP Autonomous System number (AS)
+Router(config-router)# network 192.168.1.0 mask 255.255.255.0  # Network advertisement
+Router(config-router)# neighbor 192.168.2.2 remote-as 200  # Remote BGP neighbor IP and AS
+
+
+
+
+
+Create a vlan on the switch
+======================================
+Switch(config)# vlan 10
+Switch(config-vlan)# name SALES
+Switch(config-vlan)# exit
+
+Switch(config)# vlan 20
+Switch(config-vlan)# name MARKETING
+Switch(config-vlan)# exit
+
+Switch(config)# vlan 99
+Switch(config-vlan)# name NATIVE # Set Native VLAN
+Switch(config-vlan)# exit
+
+
+
+Assign ports to VLANs on the switch
+==================================================
+Switch(config)# interface range fa0/1 - 24
+Switch(config-if-range)# switchport mode access
+Switch(config-if-range)# switchport access vlan 10
+
+
+
+Set up trunk port for router-on-a-stick on the switch
+==========================================================
+Switch(config)# interface fa0/0
+Switch(config-if)# switchport mode trunk
+Switch(config-if)# switchport trunk allowed vlan 10,20
+Switch(config-if)# switchport trunk native vlan 99  # Set Native VLAN
+
+
+
+
+Configure subinterfaces for router-on-a-stick on the Router
+==================================================================
+Router(config)# interface fa0/0.10
+Router(config-subif)# encapsulation dot1Q 10
+Router(config-subif)# ip address 192.168.10.1 255.255.255.0
+Router(config-subif)# exit
+
+Router(config)# interface fa0/0.20
+Router(config-subif)# encapsulation dot1Q 20
+Router(config-subif)# ip address 192.168.20.1 255.255.255.0
+Router(config-subif)# exit
