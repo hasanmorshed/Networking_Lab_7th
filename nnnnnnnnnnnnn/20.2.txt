@@ -1,0 +1,117 @@
+HQ
+============
+en
+conf t
+hostname HQ
+
+int fa0/0
+ip address 172.20.0.1 255.255.224.0
+no shutdown
+
+int se0/0/0
+ip address 172.20.56.1 255.255.255.252
+no shutdown
+
+int se0/0/1
+ip address 172.20.56.5 255.255.255.252
+clock rate 64000
+no shutdown
+
+exit
+
+ip route 0.0.0.0 0.0.0.0 loopback1
+
+router ospf 1
+network 172.20.0.0 0.0.31.255 area 0
+network 172.20.56.0 0.0.0.3 area 0
+network 172.20.56.4 0.0.0.3 area 0
+passive-interface fa0/0
+router-id 1.1.1.1
+default-information originate
+
+
+Branch-1
+============
+en
+conf t
+hostname Branch1
+
+int fa0/0
+ip address 172.20.32.1 255.255.240.0
+no shutdown
+
+int se0/0/0
+ip address 172.20.56.2 255.255.255.252
+clock rate 64000
+no shutdown
+
+int se0/0/1
+ip address 172.20.56.9 255.255.255.252
+
+no shutdown
+
+exit
+
+ip route 0.0.0.0 0.0.0.0 loopback1
+
+router ospf 1
+network 172.20.32.0 0.0.15.255 area 0
+network 172.20.56.0 0.0.0.3 area 0
+network 172.20.56.8 0.0.0.3 area 0
+passive-interface fa0/0
+router-id 2.2.2.2
+default-information originate
+
+
+Branch-2
+============
+en
+conf t
+hostname Branch2
+
+int fa0/0
+ip address 172.20.48.1 255.255.248.0
+no shutdown
+
+int se0/0/0
+ip address 172.20.56.10 255.255.255.252
+clock rate 64000
+no shutdown
+
+int se0/0/1
+ip address 172.20.56.6 255.255.255.252
+no shutdown
+
+exit
+
+ip route 0.0.0.0 0.0.0.0 loopback1
+
+router ospf 1
+network 172.20.48.0 0.0.7.255 area 0
+network 172.20.56.4 0.0.0.3 area 0
+network 172.20.56.8 0.0.0.3 area 0
+passive-interface fa0/0
+router-id 3.3.3.3
+default-information originate
+
+PC-1
+============
+ip address 172.20.47.254 
+subnet mask 255.255.240.0
+default gateway 172.20.32.1
+
+
+PC-2
+============
+ip address 172.20.31.254 
+subnet mask 255.255.224.0
+default gateway 172.20.0.1
+
+
+PC-3
+============
+ip address 172.20.55.254 
+subnet mask 255.255.248.0
+default gateway 172.20.48.1
+
+
